@@ -1,6 +1,7 @@
 package com.example.dronepoc.models;
 
 import com.example.dronepoc.models.enums.InstructionStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,6 +25,7 @@ public class Instruction {
     private InstructionStatus status;
 
     @OneToMany(mappedBy = "instruction", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     @ToString.Exclude
     private Set<Sortie> sorties;
 

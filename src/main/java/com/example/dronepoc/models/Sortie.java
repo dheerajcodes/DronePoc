@@ -1,6 +1,7 @@
 package com.example.dronepoc.models;
 
 import com.example.dronepoc.models.enums.SortieStatus;
+import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 
 import javax.persistence.*;
@@ -17,32 +18,42 @@ import javax.persistence.*;
 public class Sortie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     @Getter
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "drone_id", nullable = false)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("drone_id")
     @Getter
     @Setter
     private Drone drone;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "instruction_id", nullable = false)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("instruction_id")
     @Getter
     @Setter
     private Instruction instruction;
 
     @Column(nullable = false)
+    @JsonProperty("current_loc")
     @Getter
     @Setter
     private String currentLocation;
 
     @Column(nullable = false)
+    @JsonProperty("destination_loc")
     @Getter
     @Setter
     private String destinationLocation;
 
     @Column(nullable = false)
+    @JsonProperty("warehouse_loc")
     @Getter
     @Setter
     private String warehouseLocation;
@@ -54,11 +65,13 @@ public class Sortie {
     private SortieStatus status;
 
     @Column(nullable = false)
+    @JsonProperty("estimated_time_of_arrival_in_min")
     @Getter
     @Setter
     private float etaInMinutes;
 
     @Column(nullable = false)
+    @JsonProperty("current_speed_in_kmph")
     @Getter
     @Setter
     private float currentSpeedInKmph;

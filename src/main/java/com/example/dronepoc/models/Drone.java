@@ -1,6 +1,8 @@
 package com.example.dronepoc.models;
 
 import com.example.dronepoc.models.enums.DroneStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,6 +26,7 @@ public class Drone {
     private DroneStatus status;
 
     @Column(nullable = false)
+    @JsonProperty("charge_level")
     @Getter
     @Setter
     private float chargeLevel;
@@ -34,6 +37,7 @@ public class Drone {
     private String model;
 
     @OneToMany(mappedBy = "drone", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     @ToString.Exclude
     private Set<Sortie> sorties;
 

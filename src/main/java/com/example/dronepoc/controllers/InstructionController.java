@@ -35,7 +35,7 @@ public class InstructionController {
     @Autowired
     DroneRepository droneRepository;
 
-    private static final String RESPONSE_WITH_STATUS_AND_DATA = "{\"status\":\"%d\",\"data\":%s}";
+    private static final String RESPONSE_WITH_STATUS_AND_DATA = "{\"status\":%d,\"data\":%s}";
 
     private static final String RESPONSE_WITH_DATA = "{\"data\":%s}";
 

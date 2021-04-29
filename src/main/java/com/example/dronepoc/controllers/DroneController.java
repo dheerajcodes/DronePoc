@@ -35,8 +35,11 @@ public class DroneController {
     @Autowired
     private SortieRepository sortieRepository;
 
-    private static final String RESPONSE_WITH_STATUS_AND_DATA = "{\"status\":\"%d\",\"data\":%s}";
+    private static final String RESPONSE_WITH_STATUS_AND_DATA = "{\"status\":%d,\"data\":%s}";
     private static final String RESPONSE_WITH_DATA = "{\"data\":%s}";
+
+    private static final String ERROR_TEMPLATE_JSON = "{\"errors\":[{\"status\":%d,\"code\":\"%s\",\"detail\":\"%s\"}]}";
+    private static final String ERROR_TEMPLATE_STATUS_JSON = "{\"status\":%d,\"errors\":[{\"code\":\"%s\",detail:\"%s\"}]}";
 
     @GetMapping(value = "/api/drones")
     public ResponseEntity<String> listDrones() throws IOException {
@@ -95,6 +98,14 @@ public class DroneController {
         );
         responseBody = String.format(RESPONSE_WITH_STATUS_AND_DATA, HttpStatus.NO_CONTENT.value(), responseBody);
         return responseBuilder
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
+    }
+
+    @ExceptionHandler(EmptyDroneListException.class)
+    public ResponseEntity<String> handleEmptyDroneListException() {
+        String responseBody = String.format(ERROR_TEMPLATE_JSON, HttpStatus.NOT_FOUND.value(), "resource_not_found", "Requested resource not found.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(responseBody);
     }

@@ -14,9 +14,14 @@ import com.example.dronepoc.repositories.InstructionRepository;
 import com.example.dronepoc.repositories.SortieRepository;
 import com.example.dronepoc.requests.MutateDataRequestBody;
 import com.example.dronepoc.requests.data.SortieUpdateData;
+import com.example.dronepoc.utils.Utilities;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -30,25 +35,37 @@ public class DroneController {
     @Autowired
     private SortieRepository sortieRepository;
 
+    private static final String RESPONSE_WITH_STATUS_AND_DATA = "{\"status\":\"%d\",\"data\":%s}";
+    private static final String RESPONSE_WITH_DATA = "{\"data\":%s}";
+
     @GetMapping(value = "/api/drones")
-    public List<Drone> listDrones() {
+    public ResponseEntity<String> listDrones() throws IOException {
         List<Drone> drones = droneRepository.findAll();
         if (drones.isEmpty()) throw new EmptyDroneListException();
-        return drones;
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
+        String responseBody = String.format(RESPONSE_WITH_STATUS_AND_DATA, HttpStatus.OK.value(), Utilities.objectToJson(drones));
+        return responseBuilder
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
     }
 
     @GetMapping("/api/drones/{droneId}")
-    public Drone getDroneDetails(@PathVariable long droneId) {
-        return droneRepository.findById(droneId)
+    public ResponseEntity<String> getDroneDetails(@PathVariable long droneId) throws IOException {
+        Drone drone = droneRepository.findById(droneId)
                 .orElseThrow(DroneNotFoundException::new);
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
+        String responseBody = String.format(RESPONSE_WITH_DATA, Utilities.objectToJson(drone));
+        return responseBuilder
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
     }
 
     @PutMapping("/api/drones/{droneId}/sorties")
-    public String updateSortieStatus(@PathVariable long droneId, @RequestBody MutateDataRequestBody<SortieUpdateData> data) {
+    public ResponseEntity<String> updateSortieStatus(@PathVariable long droneId, @RequestBody MutateDataRequestBody<SortieUpdateData> data) {
         SortieUpdateData updateData = data.getPayload().get(0);
         Drone drone = droneRepository.findById(droneId).orElseThrow(() -> new SortieUpdateException("drone_id not found"));
         Instruction instruction = instructionRepository.findById(Long.parseLong(updateData.getInstructionId())).orElseThrow(() -> new SortieUpdateException("instruction_id not found"));
-        Sortie sortie = sortieRepository.findBy(drone, instruction, null).get(0);
+        Sortie sortie = sortieRepository.findBy(drone, instruction).get(0);
         sortie.setCurrentLocation(updateData.getCurrentLocation());
         sortie.setStatus(updateData.getStatus());
         sortie.setDestinationLocation(updateData.getDestinationLocation());
@@ -69,7 +86,16 @@ public class DroneController {
                 instruction.setStatus(InstructionStatus.delivered);
             }
         }
-
-        return String.format("{\"drone_id\":\"%s\",\"instruction_id\":\"%s\",\"status\":\"%s\"}", droneId, updateData.getInstructionId(), sortie.getStatus());
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
+        String responseBody = String.format(
+                "{\"drone_id\":\"%s\",\"instruction_id\":\"%s\",\"status\":\"%s\"}",
+                droneId,
+                updateData.getInstructionId(),
+                sortie.getStatus()
+        );
+        responseBody = String.format(RESPONSE_WITH_STATUS_AND_DATA, HttpStatus.NO_CONTENT.value(), responseBody);
+        return responseBuilder
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
     }
 }

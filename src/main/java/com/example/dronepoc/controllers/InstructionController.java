@@ -15,8 +15,14 @@ import com.example.dronepoc.repositories.InstructionRepository;
 import com.example.dronepoc.repositories.SortieRepository;
 import com.example.dronepoc.requests.MutateDataRequestBody;
 import com.example.dronepoc.requests.data.NewInstructionData;
+import com.example.dronepoc.utils.Utilities;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 public class InstructionController {
@@ -29,8 +35,12 @@ public class InstructionController {
     @Autowired
     DroneRepository droneRepository;
 
+    private static final String RESPONSE_WITH_STATUS_AND_DATA = "{\"status\":\"%d\",\"data\":%s}";
+
+    private static final String RESPONSE_WITH_DATA = "{\"data\":%s}";
+
     @PostMapping("/api/drones/instructions")
-    public String newPickupInstruction(@RequestBody MutateDataRequestBody<NewInstructionData> data) {
+    public ResponseEntity<String> newPickupInstruction(@RequestBody MutateDataRequestBody<NewInstructionData> data) {
         NewInstructionData payload = data.getPayload().get(0);
         // Create new instruction
         Instruction newInstruction = new Instruction();
@@ -61,18 +71,27 @@ public class InstructionController {
         newSortie.setCurrentSpeedInKmph(0);
         sortieRepository.save(newSortie);
 
-        return String.format(
-                "{\"drone_id\":\"%d\",\"instruction_id\":\"%d\",\"delivery_status\":\"%s\"}",
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
+        String responseBody = String.format("{\"drone_id\":\"%d\",\"instruction_id\":\"%d\",\"delivery_status\":\"%s\"}",
                 drone.getId(),
                 newInstruction.getId(),
-                newInstruction.getStatus()
+                newInstruction.getStatus().toString()
         );
+        responseBody = String.format(RESPONSE_WITH_STATUS_AND_DATA, HttpStatus.OK.value(), responseBody);
+        return responseBuilder
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
     }
 
     @GetMapping("/api/drones/instructions/{instructionId}")
-    public Instruction getInstructionStatus(@PathVariable long instructionId) {
-        return instructionRepository
+    public ResponseEntity<String> getInstructionStatus(@PathVariable long instructionId) throws IOException {
+        Instruction instruction = instructionRepository
                 .findById(instructionId)
                 .orElseThrow(InstructionNotFoundException::new);
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
+        String responseBody = String.format(RESPONSE_WITH_DATA, Utilities.objectToJson(instruction));
+        return responseBuilder
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
     }
 }

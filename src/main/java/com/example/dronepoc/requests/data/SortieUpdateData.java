@@ -4,9 +4,6 @@ import com.example.dronepoc.models.enums.SortieStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString

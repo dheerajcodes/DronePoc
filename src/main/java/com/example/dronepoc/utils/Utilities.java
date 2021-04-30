@@ -12,7 +12,6 @@ public class Utilities {
     private static final Pattern LOCATION_PATTERN = Pattern.compile("^\\d+(.\\d+),\\d+(.\\d+)$");
 
     public static <T> String objectToJson(T object) throws IOException {
-        // @Todo truncate all floats to 2 digit precision
         ObjectMapper objectMapper = new ObjectMapper();
         JsonFactory jsonFactory = new JsonFactory();
         StringWriter stringWriter = new StringWriter();

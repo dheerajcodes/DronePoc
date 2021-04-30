@@ -1,8 +1,6 @@
 package com.example.dronepoc.controllers;
 
-import com.example.dronepoc.exception.DroneBusyException;
-import com.example.dronepoc.exception.DroneNotFoundException;
-import com.example.dronepoc.exception.InstructionNotFoundException;
+import com.example.dronepoc.exceptions.*;
 import com.example.dronepoc.models.Drone;
 import com.example.dronepoc.models.Instruction;
 import com.example.dronepoc.models.Sortie;
@@ -38,25 +36,54 @@ public class InstructionController {
 
     private static final String RESPONSE_WITH_DATA = "{\"data\":%s}";
 
+    private static final String MSG_FIELD_EMPTY = "%s cannot be empty.";
+    private static final String MSG_FIELD_INVALID = "%s is in invalid format.";
+
+    private static final String ERROR_TEMPLATE_JSON = "{\"errors\":[{\"status\":%d,\"code\":\"%s\",\"detail\":\"%s\"}]}";
+    private static final String ERROR_TEMPLATE_STATUS_JSON = "{\"status\":%d,\"errors\":[{\"code\":\"%s\",\"detail\":\"%s\"}]}";
+
     @PostMapping("/api/drones/instructions")
     public ResponseEntity<String> newPickupInstruction(@RequestBody MutateDataRequestBody<NewInstructionData> data) {
         NewInstructionData payload = data.getPayload().get(0);
+
+        // Validate Payload Data
+        long droneId;
+        try {
+            if (payload.getDroneId().trim().isEmpty())
+                throw new EmptyFieldException(String.format(MSG_FIELD_EMPTY, "drone_id"));
+            droneId = Long.parseLong(payload.getDroneId());
+        } catch (NumberFormatException exception) {
+            throw new InvalidFieldException(String.format(MSG_FIELD_INVALID, "drone_id"));
+        }
+
+        String instructionType = payload.getType().trim();
+        if (instructionType.isEmpty()) throw new EmptyFieldException(String.format(MSG_FIELD_EMPTY, "type"));
+        else if (!instructionType.equals("pickup"))
+            throw new InvalidFieldException(String.format(MSG_FIELD_INVALID, "type"));
+
+        String warehouseLocation = Utilities.removeWhitespaces(payload.getWarehouseLocation());
+        if (warehouseLocation.isEmpty()) throw new EmptyFieldException(String.format(MSG_FIELD_EMPTY, "warehouse_loc"));
+        if (!Utilities.validateLocationCoordinates(warehouseLocation))
+            throw new InvalidFieldException(String.format(MSG_FIELD_INVALID, "warehouse_loc"));
+
+        String destinationLocation = Utilities.removeWhitespaces(payload.getDestinationLocation());
+        if (destinationLocation.isEmpty())
+            throw new EmptyFieldException(String.format(MSG_FIELD_EMPTY, "destination_loc"));
+        if (!Utilities.validateLocationCoordinates(destinationLocation))
+            throw new InvalidFieldException(String.format(MSG_FIELD_INVALID, "destination_loc"));
+
+        // Make sure drone is ready
+        Drone drone = droneRepository
+                .findById(droneId)
+                .orElseThrow(() -> new DroneNotFoundException(droneId));
+
+        if (drone.getStatus() == DroneStatus.performing_task)
+            throw new DroneBusyException();
+
         // Create new instruction
         Instruction newInstruction = new Instruction();
         newInstruction.setStatus(InstructionStatus.in_progress); // Initial status for instruction
         newInstruction = instructionRepository.save(newInstruction);
-
-        Drone drone = droneRepository
-                .findById(Long.parseLong(payload.getDroneId()))
-                .orElseThrow(() -> new DroneNotFoundException(Long.parseLong(payload.getDroneId())));
-        // Make sure drone is ready to execute instruction
-        if (drone.getStatus() == DroneStatus.performing_task)
-            throw new DroneBusyException();
-        // Change drone status
-        drone.setStatus(DroneStatus.performing_task);
-        drone = droneRepository.save(drone);
-
-        // Todo invalid field and empty field exceptions
 
         // Create new sortie instruction
         Sortie newSortie = new Sortie();
@@ -64,11 +91,15 @@ public class InstructionController {
         newSortie.setInstruction(newInstruction);
         newSortie.setStatus(SortieStatus.in_progress); // Initial status for sortie
         newSortie.setCurrentLocation("0,0"); // Initial current location of drone
-        newSortie.setDestinationLocation(payload.getDestinationLocation());
-        newSortie.setWarehouseLocation(payload.getWarehouseLocation());
+        newSortie.setDestinationLocation(destinationLocation);
+        newSortie.setWarehouseLocation(warehouseLocation);
         newSortie.setEtaInMinutes(-1);
         newSortie.setCurrentSpeedInKmph(0);
         sortieRepository.save(newSortie);
+
+        // Change drone status
+        drone.setStatus(DroneStatus.performing_task);
+        drone = droneRepository.save(drone);
 
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
         String responseBody = String.format("{\"drone_id\":\"%d\",\"instruction_id\":\"%d\",\"delivery_status\":\"%s\"}",
@@ -86,10 +117,62 @@ public class InstructionController {
     public ResponseEntity<String> getInstructionStatus(@PathVariable long instructionId) throws IOException {
         Instruction instruction = instructionRepository
                 .findById(instructionId)
-                .orElseThrow(InstructionNotFoundException::new);
+                .orElseThrow(() -> new InstructionNotFoundException(instructionId));
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
         String responseBody = String.format(RESPONSE_WITH_DATA, Utilities.objectToJson(instruction));
         return responseBuilder
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
+    }
+
+    @ExceptionHandler(EmptyFieldException.class)
+    public ResponseEntity<String> handleEmptyFieldException(EmptyFieldException exception) {
+        String responseBody = String.format(
+                ERROR_TEMPLATE_STATUS_JSON,
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                "validation_error",
+                exception.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
+    }
+
+    @ExceptionHandler(InvalidFieldException.class)
+    public ResponseEntity<String> handleInvalidFieldException(InvalidFieldException exception) {
+        String responseBody = String.format(
+                ERROR_TEMPLATE_STATUS_JSON,
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                "validation_error",
+                exception.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
+    }
+
+    @ExceptionHandler(DroneBusyException.class)
+    public ResponseEntity<String> handleDroneBusyException() {
+        String responseBody = String.format(
+                ERROR_TEMPLATE_STATUS_JSON,
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                "error",
+                "Drone is busy."
+        );
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
+    }
+
+    @ExceptionHandler(InstructionNotFoundException.class)
+    public ResponseEntity<String> handleInstructionNotFoundException(InstructionNotFoundException exception) {
+        String responseBody = String.format(
+                ERROR_TEMPLATE_JSON,
+                HttpStatus.NOT_FOUND.value(),
+                "not_found",
+                "Instruction with id=" + exception.getInstructionId() + " not found"
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(responseBody);
     }

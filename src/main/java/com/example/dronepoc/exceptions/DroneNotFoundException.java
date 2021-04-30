@@ -1,4 +1,4 @@
-package com.example.dronepoc.exception;
+package com.example.dronepoc.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

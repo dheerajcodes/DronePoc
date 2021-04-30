@@ -1,8 +1,8 @@
 package com.example.dronepoc.controllers;
 
-import com.example.dronepoc.exception.DroneNotFoundException;
-import com.example.dronepoc.exception.EmptyDroneListException;
-import com.example.dronepoc.exception.SortieUpdateException;
+import com.example.dronepoc.exceptions.DroneNotFoundException;
+import com.example.dronepoc.exceptions.EmptyDroneListException;
+import com.example.dronepoc.exceptions.SortieUpdateException;
 import com.example.dronepoc.models.Drone;
 import com.example.dronepoc.models.Instruction;
 import com.example.dronepoc.models.Sortie;
@@ -39,7 +39,6 @@ public class DroneController {
     private static final String RESPONSE_WITH_DATA = "{\"data\":%s}";
 
     private static final String ERROR_TEMPLATE_JSON = "{\"errors\":[{\"status\":%d,\"code\":\"%s\",\"detail\":\"%s\"}]}";
-    private static final String ERROR_TEMPLATE_STATUS_JSON = "{\"status\":%d,\"errors\":[{\"code\":\"%s\",detail:\"%s\"}]}";
 
     @GetMapping(value = "/api/drones")
     public ResponseEntity<String> listDrones() throws IOException {
@@ -89,6 +88,10 @@ public class DroneController {
                 instruction.setStatus(InstructionStatus.delivered);
             }
         }
+
+        droneRepository.save(drone);
+        instructionRepository.save(instruction);
+
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
         String responseBody = String.format(
                 "{\"drone_id\":\"%s\",\"instruction_id\":\"%s\",\"status\":\"%s\"}",

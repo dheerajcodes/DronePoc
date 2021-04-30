@@ -1,6 +1,5 @@
 package com.example.dronepoc.controllers;
 
-
 import com.example.dronepoc.exception.DroneBusyException;
 import com.example.dronepoc.exception.DroneNotFoundException;
 import com.example.dronepoc.exception.InstructionNotFoundException;
@@ -49,7 +48,7 @@ public class InstructionController {
 
         Drone drone = droneRepository
                 .findById(Long.parseLong(payload.getDroneId()))
-                .orElseThrow(DroneNotFoundException::new);
+                .orElseThrow(() -> new DroneNotFoundException(Long.parseLong(payload.getDroneId())));
         // Make sure drone is ready to execute instruction
         if (drone.getStatus() == DroneStatus.performing_task)
             throw new DroneBusyException();

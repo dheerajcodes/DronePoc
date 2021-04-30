@@ -55,7 +55,7 @@ public class DroneController {
     @GetMapping("/api/drones/{droneId}")
     public ResponseEntity<String> getDroneDetails(@PathVariable long droneId) throws IOException {
         Drone drone = droneRepository.findById(droneId)
-                .orElseThrow(DroneNotFoundException::new);
+                .orElseThrow(() -> new DroneNotFoundException(droneId));
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
         String responseBody = String.format(RESPONSE_WITH_DATA, Utilities.objectToJson(drone));
         return responseBuilder
@@ -105,6 +105,22 @@ public class DroneController {
     @ExceptionHandler(EmptyDroneListException.class)
     public ResponseEntity<String> handleEmptyDroneListException() {
         String responseBody = String.format(ERROR_TEMPLATE_JSON, HttpStatus.NOT_FOUND.value(), "resource_not_found", "Requested resource not found.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
+    }
+
+    @ExceptionHandler(DroneNotFoundException.class)
+    public ResponseEntity<String> handleDroneNotFoundException(DroneNotFoundException exception) {
+        String responseBody = String.format(ERROR_TEMPLATE_JSON, HttpStatus.NOT_FOUND.value(), "not_found", "drone with id=" + exception.getDroneId() + " not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
+    }
+
+    @ExceptionHandler(SortieUpdateException.class)
+    public ResponseEntity<String> handleSortieUpdateException(SortieUpdateException exception) {
+        String responseBody = String.format(ERROR_TEMPLATE_JSON, HttpStatus.NOT_FOUND.value(), "not_found", exception.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(responseBody);

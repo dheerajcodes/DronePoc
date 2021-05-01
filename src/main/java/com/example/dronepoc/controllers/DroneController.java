@@ -97,7 +97,7 @@ public class DroneController {
                 "{\"drone_id\":\"%s\",\"instruction_id\":\"%s\",\"status\":\"%s\"}",
                 droneId,
                 updateData.getInstructionId(),
-                sortie.getStatus()
+                "updated"
         );
         responseBody = String.format(RESPONSE_WITH_STATUS_AND_DATA, HttpStatus.NO_CONTENT.value(), responseBody);
         return responseBuilder

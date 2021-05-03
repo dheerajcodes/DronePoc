@@ -22,8 +22,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.cucumber:cucumber-java:6.8.1'
     testImplementation 'io.cucumber:cucumber-junit:6.8.1'
-    testImplementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
     testImplementation 'io.cucumber:cucumber-spring:6.10.3'
+    testImplementation 'io.rest-assured:rest-assured:4.3.3'
 }
 
 test {

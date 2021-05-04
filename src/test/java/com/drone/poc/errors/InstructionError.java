@@ -19,7 +19,7 @@ public enum InstructionError {
     BusyDrone("error", "Drone is busy.");
 
     @Getter
-    private String code;
+    private final String code;
     @Getter
-    private String detail;
+    private final String detail;
 }

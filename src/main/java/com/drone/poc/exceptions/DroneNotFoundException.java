@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class DroneNotFoundException extends RuntimeException {
     @Getter
-    private final long droneId;
+    private final String droneId;
 }

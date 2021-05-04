@@ -14,7 +14,7 @@ Feature: Webhook for the drone to update its sortie details.
     Then sortie details are updated successfully
     Examples:
       | drone id | instruction id | current location | destination location | warehouse location | status      | estimated time | current speed |
-      | 5        | 1              | 30.21,21.02      | 40.25,30.54          | 30.21,22.32        | in_progress | 20.45          | 45.50         |
+      | drone_5  | ins_1          | 30.21,21.02      | 40.25,30.54          | 30.21,22.32        | in_progress | 20.45          | 45.50         |
 
   @T_018
   Scenario Outline: Verify that invalid drone id while updating sortie details results in error.
@@ -30,7 +30,7 @@ Feature: Webhook for the drone to update its sortie details.
     Then sortie details fails to update with error <error>
     Examples:
       | drone id | instruction id | current location | destination location | warehouse location | status      | estimated time | current speed | error           |
-      | -1       | 1              | 30.21,21.02      | 40.25,30.54          | 30.21,22.32        | in_progress | 20.45          | 45.50         | DroneIdNotFound |
+      | abc      | ins_1          | 30.21,21.02      | 40.25,30.54          | 30.21,22.32        | in_progress | 20.45          | 45.50         | DroneIdNotFound |
 
   @T_019
   Scenario Outline: Verify that invalid drone id while updating sortie details results in error.
@@ -46,4 +46,4 @@ Feature: Webhook for the drone to update its sortie details.
     Then sortie details fails to update with error <error>
     Examples:
       | drone id | instruction id | current location | destination location | warehouse location | status      | estimated time | current speed | error                 |
-      | 5        | -1             | 30.21,21.02      | 40.25,30.54          | 30.21,22.32        | in_progress | 20.45          | 45.50         | InstructionIdNotFound |
+      | drone_1  | abc            | 30.21,21.02      | 40.25,30.54          | 30.21,22.32        | in_progress | 20.45          | 45.50         | InstructionIdNotFound |

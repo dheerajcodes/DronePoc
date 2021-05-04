@@ -47,14 +47,18 @@ public class InstructionController {
         NewInstructionData payload = data.getPayload().get(0);
 
         // Validate Payload Data
-        long droneId;
+        Drone drone;
         try {
             if (payload.getDroneId().trim().isEmpty())
                 throw new EmptyFieldException(String.format(MSG_FIELD_EMPTY, "drone_id"));
-            droneId = Long.parseLong(payload.getDroneId());
-        } catch (NumberFormatException exception) {
+            String droneId = payload.getDroneId();
+            drone = droneRepository.findByDroneId(droneId).orElseThrow(() -> new DroneNotFoundException(droneId));
+        } catch (DroneNotFoundException exception) {
             throw new InvalidFieldException(String.format(MSG_FIELD_INVALID, "drone_id"));
         }
+        // Make sure drone is ready
+        if (drone.getStatus() == DroneStatus.performing_task)
+            throw new DroneBusyException();
 
         String instructionType = payload.getType().trim();
         if (instructionType.isEmpty()) throw new EmptyFieldException(String.format(MSG_FIELD_EMPTY, "type"));
@@ -72,17 +76,11 @@ public class InstructionController {
         if (!Utilities.validateLocationCoordinates(destinationLocation))
             throw new InvalidFieldException(String.format(MSG_FIELD_INVALID, "destination_loc"));
 
-        // Make sure drone is ready
-        Drone drone = droneRepository
-                .findById(droneId)
-                .orElseThrow(() -> new DroneNotFoundException(droneId));
-
-        if (drone.getStatus() == DroneStatus.performing_task)
-            throw new DroneBusyException();
-
-        // Create new instruction
-        Instruction newInstruction = new Instruction();
-        newInstruction.setStatus(InstructionStatus.in_progress); // Initial status for instruction
+        // Create new instruction with initial status
+        Instruction newInstruction = new Instruction(InstructionStatus.in_progress);
+        newInstruction = instructionRepository.save(newInstruction);
+        // Create and save instruction id from its newly assigned primary key value
+        newInstruction.setInstructionId(Instruction.makeInstructionId(newInstruction));
         newInstruction = instructionRepository.save(newInstruction);
 
         // Create new sortie instruction
@@ -102,9 +100,9 @@ public class InstructionController {
         drone = droneRepository.save(drone);
 
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
-        String responseBody = String.format("{\"drone_id\":\"%d\",\"instruction_id\":\"%d\",\"delivery_status\":\"%s\"}",
-                drone.getId(),
-                newInstruction.getId(),
+        String responseBody = String.format("{\"drone_id\":\"%s\",\"instruction_id\":\"%s\",\"delivery_status\":\"%s\"}",
+                drone.getDroneId(),
+                newInstruction.getInstructionId(),
                 newInstruction.getStatus().toString()
         );
         responseBody = String.format(RESPONSE_WITH_STATUS_AND_DATA, HttpStatus.OK.value(), responseBody);
@@ -114,9 +112,9 @@ public class InstructionController {
     }
 
     @GetMapping("/api/drones/instructions/{instructionId}")
-    public ResponseEntity<String> getInstructionStatus(@PathVariable long instructionId) throws IOException {
+    public ResponseEntity<String> getInstructionStatus(@PathVariable String instructionId) throws IOException {
         Instruction instruction = instructionRepository
-                .findById(instructionId)
+                .findByInstructionId(instructionId)
                 .orElseThrow(() -> new InstructionNotFoundException(instructionId));
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
         String responseBody = String.format(RESPONSE_WITH_DATA, Utilities.objectToJson(instruction));

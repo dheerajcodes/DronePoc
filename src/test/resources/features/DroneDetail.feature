@@ -12,8 +12,8 @@ Feature: Retrieve list of drones as well as details of individual drone.
     When drone details are fetched
     Then details of drone are displayed
     Examples:
-      | id |
-      | 2  |
+      | id      |
+      | drone_2 |
 
   @T_006
   Scenario: Verify that empty drone list results in error.
@@ -27,5 +27,5 @@ Feature: Retrieve list of drones as well as details of individual drone.
     When drone details are fetched
     Then details of drone are not found
     Examples:
-      | id |
-      | -1 |
+      | id  |
+      | abc |

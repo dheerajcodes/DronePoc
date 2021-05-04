@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class InstructionNotFoundException extends RuntimeException {
     @Getter
-    long instructionId;
+    String instructionId;
 }

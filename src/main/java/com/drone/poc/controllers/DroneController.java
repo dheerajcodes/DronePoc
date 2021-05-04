@@ -52,8 +52,8 @@ public class DroneController {
     }
 
     @GetMapping("/api/drones/{droneId}")
-    public ResponseEntity<String> getDroneDetails(@PathVariable long droneId) throws IOException {
-        Drone drone = droneRepository.findById(droneId)
+    public ResponseEntity<String> getDroneDetails(@PathVariable String droneId) throws IOException {
+        Drone drone = droneRepository.findByDroneId(droneId)
                 .orElseThrow(() -> new DroneNotFoundException(droneId));
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
         String responseBody = String.format(RESPONSE_WITH_DATA, Utilities.objectToJson(drone));
@@ -63,10 +63,10 @@ public class DroneController {
     }
 
     @PutMapping("/api/drones/{droneId}/sorties")
-    public ResponseEntity<String> updateSortieStatus(@PathVariable long droneId, @RequestBody MutateDataRequestBody<SortieUpdateData> data) {
+    public ResponseEntity<String> updateSortieStatus(@PathVariable String droneId, @RequestBody MutateDataRequestBody<SortieUpdateData> data) {
         SortieUpdateData updateData = data.getPayload().get(0);
-        Drone drone = droneRepository.findById(droneId).orElseThrow(() -> new SortieUpdateException("drone_id not found"));
-        Instruction instruction = instructionRepository.findById(Long.parseLong(updateData.getInstructionId())).orElseThrow(() -> new SortieUpdateException("instruction_id not found"));
+        Drone drone = droneRepository.findByDroneId(droneId).orElseThrow(() -> new SortieUpdateException("drone_id not found"));
+        Instruction instruction = instructionRepository.findByInstructionId(updateData.getInstructionId()).orElseThrow(() -> new SortieUpdateException("instruction_id not found"));
         Sortie sortie = sortieRepository.findBy(drone, instruction).get(0);
         sortie.setCurrentLocation(updateData.getCurrentLocation());
         sortie.setStatus(updateData.getStatus());
@@ -95,8 +95,8 @@ public class DroneController {
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
         String responseBody = String.format(
                 "{\"drone_id\":\"%s\",\"instruction_id\":\"%s\",\"status\":\"%s\"}",
-                droneId,
-                updateData.getInstructionId(),
+                drone.getDroneId(),
+                instruction.getInstructionId(),
                 "updated"
         );
         responseBody = String.format(RESPONSE_WITH_STATUS_AND_DATA, HttpStatus.NO_CONTENT.value(), responseBody);

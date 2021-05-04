@@ -2,6 +2,8 @@ package com.drone.poc.models;
 
 import com.drone.poc.models.enums.InstructionStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,11 +14,19 @@ import java.util.Set;
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString
+@JsonPropertyOrder({"id", "status"})
 public class Instruction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
-    private long id;
+    @JsonIgnore
+    private long primaryKey;
+
+    @Column(name = "ins_id", unique = true)
+    @JsonProperty("id")
+    @Getter
+    @Setter
+    private String instructionId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -30,7 +40,10 @@ public class Instruction {
     private Set<Sortie> sorties;
 
     public Instruction(InstructionStatus status) {
-        this.id = -1;
         this.status = status;
+    }
+
+    public static String makeInstructionId(Instruction instruction) {
+        return String.format("ins_%d", instruction.getPrimaryKey());
     }
 }

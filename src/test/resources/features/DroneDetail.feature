@@ -1,31 +1,55 @@
 Feature: Retrieve list of drones as well as details of individual drone.
 
   @T_001
-  Scenario: Verify that list of drones is retrieved.
-    Given at least one drone is present
-    When list of drones is fetched
-    Then drones list is displayed
+  Scenario Outline: Verify that list of drones is retrieved.
+    Given endpoint is Drone List Service
+    And request method is GET
+    And request accepts JSON
+    When request is sent
+    Then response is received with status <Status>
+    And response has JSON content
+    And response contains list of drones
+    Examples:
+      | Status |
+      | OK     |
 
   @T_002
   Scenario Outline: Verify that details of a drone are retrieved.
-    Given a drone with id <id> is present
-    When drone details are fetched
-    Then details of drone are displayed
+    Given endpoint is Drone Detail Service
+    And endpoint url parameter drone-id is <Drone ID>
+    And request method is GET
+    And request accepts JSON
+    When request is sent
+    Then response is received with status <Status>
+    And response has JSON content
+    And response contains drone details
     Examples:
-      | id      |
-      | drone_2 |
+      | Drone ID       | Status |
+      | T_002_DRONE_ID | OK     |
 
   @T_006
-  Scenario: Verify that empty drone list results in error.
-    Given no drone is present
-    When list of drones is fetched
-    Then drone list is not found
+  Scenario Outline: Verify that empty drone list results in error.
+    Given endpoint is Drone List Service
+    And request method is GET
+    And request accepts JSON
+    When request is sent
+    Then response is received with status <Status>
+    And response has JSON content
+    And response does not contain list of drones
+    Examples:
+      | Status    |
+      | NOT_FOUND |
 
   @T_007
   Scenario Outline: Verify that invalid id while retrieving drone details results in error.
-    Given a drone with id <id> is not present
-    When drone details are fetched
-    Then details of drone are not found
+    Given endpoint is Drone Detail Service
+    And endpoint url parameter drone-id is <Drone ID>
+    And request method is GET
+    And request accepts JSON
+    When request is sent
+    Then response is received with status <Status>
+    And response has JSON content
+    And response does not contain drone details
     Examples:
-      | id  |
-      | abc |
+      | Drone ID       | Status    |
+      | T_007_DRONE_ID | NOT_FOUND |

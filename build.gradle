@@ -11,8 +11,8 @@ sourceCompatibility = '1.8'
 
 repositories {
     mavenCentral()
-    jcenter()
 }
+ext["groovy.version"] = "3.0.3"
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -24,6 +24,8 @@ dependencies {
     testImplementation 'io.cucumber:cucumber-junit:6.8.1'
     testImplementation 'io.cucumber:cucumber-spring:6.10.3'
     testImplementation 'io.rest-assured:rest-assured:4.3.3'
+    testImplementation 'io.rest-assured:json-path:4.3.3'
+    testImplementation 'io.rest-assured:xml-path:4.3.3'
 }
 
 test {

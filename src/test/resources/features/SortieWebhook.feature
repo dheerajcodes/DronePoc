@@ -17,7 +17,7 @@ Feature: Webhook for the drone to update its sortie details.
     When request is sent
     Then response is received with status <Response Status>
     And response has JSON content
-    And sortie details are  updated successfully
+    And sortie details are updated successfully
     Examples:
       | Drone ID       | Instruction ID       | Current Location       | Destination Location       | Warehouse Location       | Status       | Estimated Time       | Current Speed       | Response Status |
       | T_005_DRONE_ID | T_005_INSTRUCTION_ID | T_005_CURRENT_LOCATION | T_005_DESTINATION_LOCATION | T_005_WAREHOUSE_LOCATION | T_005_STATUS | T_005_ESTIMATED_TIME | T_005_CURRENT_SPEED | OK              |

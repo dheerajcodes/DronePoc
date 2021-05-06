@@ -5,6 +5,8 @@ import com.drone.poc.context.ContextItem;
 
 import com.drone.poc.endpoints.DroneListService;
 import com.drone.poc.endpoints.ServiceEndpoint;
+import com.drone.poc.setup.TestScenarioManager;
+import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.en.And;
@@ -14,12 +16,22 @@ import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import io.restassured.response.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 public class Common extends CucumberStepDefinition {
 
+    @Autowired
+    private TestScenarioManager scenarioManager;
+
     @Before
     public void beforeScenario(Scenario scenario) {
+        scenarioManager.setupPreconditions(scenario);
+    }
+
+    @After
+    public void afterScenario(Scenario scenario) {
+        scenarioManager.undoPreconditions(scenario);
     }
 
     @Given("^endpoint is (.*)$")
@@ -27,9 +39,9 @@ public class Common extends CucumberStepDefinition {
         String baseUrl = super.getTestProperty("BASE_URL");
         String basePath = super.getTestProperty("BASE_PATH");
         if (baseUrl == null || baseUrl.trim().isEmpty())
-            throw new RuntimeException("BASE_URL is not set in test.properties file");
+            throw new RuntimeException("BASE_URL is not set in test.data.properties file");
         if (basePath == null || basePath.trim().isEmpty())
-            throw new RuntimeException("BASE_PATH is not set in test.properties file");
+            throw new RuntimeException("BASE_PATH is not set in test.data.properties file");
 
         ServiceEndpoint service = null;
         switch (serviceName) {

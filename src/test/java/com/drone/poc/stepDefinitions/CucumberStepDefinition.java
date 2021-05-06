@@ -11,7 +11,7 @@ import org.springframework.test.context.TestPropertySource;
 
 @CucumberContextConfiguration
 @SpringBootTest
-@TestPropertySource("classpath:test.properties")
+@TestPropertySource("classpath:test.data.properties")
 public class CucumberStepDefinition extends TestCase {
     @Autowired
     @Getter

@@ -57,7 +57,9 @@ public abstract class ServiceEndpoint {
         return this.getEndPointPath();
     }
 
-    protected abstract String getRequestBody();
+    protected String getRequestBody() {
+        return null;
+    }
 
 
     public Response sendRequest() {

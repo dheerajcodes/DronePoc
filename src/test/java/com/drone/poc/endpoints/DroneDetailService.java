@@ -27,9 +27,4 @@ public class DroneDetailService extends ServiceEndpoint {
     public void addRequestParameter(String key, String value) {
         throw new NoRequestContentSupportedException(SIMPLE_CLASS_NAME);
     }
-
-    @Override
-    protected String getRequestBody() {
-        return null;
-    }
 }

@@ -3,6 +3,7 @@ package com.drone.poc.stepDefinitions;
 
 import com.drone.poc.context.ContextItem;
 
+import com.drone.poc.endpoints.DroneDetailService;
 import com.drone.poc.endpoints.DroneListService;
 import com.drone.poc.endpoints.ServiceEndpoint;
 import com.drone.poc.setup.TestScenarioManager;
@@ -36,8 +37,8 @@ public class Common extends CucumberStepDefinition {
 
     @Given("^endpoint is (.*)$")
     public void endPointIs(String serviceName) {
-        String baseUrl = super.getTestProperty("BASE_URL");
-        String basePath = super.getTestProperty("BASE_PATH");
+        String baseUrl = getTestData("BASE_URL");
+        String basePath = getTestData("BASE_PATH");
         if (baseUrl == null || baseUrl.trim().isEmpty())
             throw new RuntimeException("BASE_URL is not set in test.data.properties file");
         if (basePath == null || basePath.trim().isEmpty())
@@ -47,14 +48,22 @@ public class Common extends CucumberStepDefinition {
         switch (serviceName) {
             case "Drone List Service":
                 service = new DroneListService(baseUrl, basePath);
+                break;
+            case "Drone Detail Service":
+                service = new DroneDetailService(baseUrl, basePath);
+                break;
+            default:
+                // Todo: Throw Unknown Service Exception
+
         }
         getScenarioContext().setItem(ContextItem.SERVICE, service);
     }
 
 
     @And("^endpoint url parameter (.*) is (.*)$")
-    public void endpointUrlParameterIs(String parameterName, String parameterValue) {
+    public void endpointUrlParameterIs(String parameterName, String parameterValueKey) {
         ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
+        String parameterValue = getTestData(parameterValueKey);
         service.addUrlParameter(parameterName, parameterValue);
     }
 

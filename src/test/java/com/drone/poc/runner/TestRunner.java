@@ -3,7 +3,6 @@ package com.drone.poc.runner;
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.TestPropertySource;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(

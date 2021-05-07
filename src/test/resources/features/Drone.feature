@@ -35,10 +35,10 @@ Feature: Retrieve list of drones as well as details of individual drone.
     When request is sent
     Then response is received with status <Status>
     And response has JSON content
-    And response does not contain list of drones
+    And response contains drone error <Error>
     Examples:
-      | Status    |
-      | NOT_FOUND |
+      | Status    | Error             |
+      | NOT_FOUND | DroneListNotFound |
 
   @T_007
   Scenario Outline: Verify that invalid id while retrieving drone details results in error.
@@ -49,7 +49,7 @@ Feature: Retrieve list of drones as well as details of individual drone.
     When request is sent
     Then response is received with status <Status>
     And response has JSON content
-    And response does not contain drone details
+    And response contains drone error <Error>
     Examples:
-      | Drone ID       | Status    |
-      | T_007_DRONE_ID | NOT_FOUND |
+      | Drone ID       | Status    | Error               |
+      | T_007_DRONE_ID | NOT_FOUND | DroneDetailNotFound |

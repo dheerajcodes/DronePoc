@@ -1,6 +1,7 @@
 package com.drone.poc.stepDefinitions;
 
 import com.drone.poc.context.ScenarioContext;
+import com.drone.poc.exceptions.TestDataNotFoundException;
 import io.cucumber.spring.CucumberContextConfiguration;
 import junit.framework.TestCase;
 import lombok.Getter;
@@ -21,7 +22,9 @@ public class CucumberStepDefinition extends TestCase {
     @Getter
     private Environment environment;
 
-    public String getTestProperty(String propertyKey) {
-        return environment.getProperty(propertyKey);
+    protected String getTestData(String testDataKey) {
+        String value = environment.getProperty(testDataKey);
+        if (value == null) throw new TestDataNotFoundException(testDataKey);
+        return value;
     }
 }

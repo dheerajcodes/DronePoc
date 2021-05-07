@@ -45,11 +45,11 @@ public abstract class ServiceEndpoint {
         this.requestParameters.put(key, value);
     }
 
-    protected String getUrlParameter(String key) {
+    public String getUrlParameter(String key) {
         return this.urlParameters.get(key);
     }
 
-    protected String getRequestParameter(String key) {
+    public String getRequestParameter(String key) {
         return this.requestParameters.get(key);
     }
 
@@ -63,6 +63,7 @@ public abstract class ServiceEndpoint {
     public Response sendRequest() {
         String requestPath = this.getRequestPath();
         String requestBody = this.getRequestBody();
+        if (!urlParameters.isEmpty()) this.requestSpec.pathParams(urlParameters);
         if (requestBody != null && !requestBody.trim().isEmpty()) this.requestSpec.body(requestBody);
         return this.requestSpec.request(this.getRequestMethod(), requestPath);
     }

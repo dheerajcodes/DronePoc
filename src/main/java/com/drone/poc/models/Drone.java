@@ -12,7 +12,6 @@ import java.util.Set;
 @Entity
 @Table(name = "drone")
 @NoArgsConstructor
-@EqualsAndHashCode
 @ToString
 @JsonPropertyOrder({"id", "status", "charge_level", "model"})
 public class Drone {

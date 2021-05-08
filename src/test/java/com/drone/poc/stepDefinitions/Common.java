@@ -3,9 +3,8 @@ package com.drone.poc.stepDefinitions;
 
 import com.drone.poc.context.ContextItem;
 
-import com.drone.poc.endpoints.DroneDetailService;
-import com.drone.poc.endpoints.DroneListService;
-import com.drone.poc.endpoints.ServiceEndpoint;
+import com.drone.poc.endpoints.*;
+import com.drone.poc.exceptions.UnknownServiceEndpoint;
 import com.drone.poc.setup.TestScenarioManager;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -52,9 +51,17 @@ public class Common extends CucumberStepDefinition {
             case "Drone Detail Service":
                 service = new DroneDetailService(baseUrl, basePath);
                 break;
+            case "New Instruction Service":
+                service = new NewInstructionService(baseUrl, basePath);
+                break;
+            case "Instruction Detail Service":
+                service = new InstructionDetailService(baseUrl, basePath);
+                break;
+            case "Sortie Webhook Service":
+                service = new SortieWebhookService(baseUrl, basePath);
+                break;
             default:
-                // Todo: Throw Unknown Service Exception
-
+                throw new UnknownServiceEndpoint(serviceName);
         }
         getScenarioContext().setItem(ContextItem.SERVICE, service);
     }
@@ -77,6 +84,19 @@ public class Common extends CucumberStepDefinition {
     public void requestAcceptsContentType(String contentType) {
         ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
         service.setRequestAccepts(ContentType.valueOf(contentType));
+    }
+
+    @And("^request has (.*) content$")
+    public void requestHasContentType(String contentType) {
+        ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
+        service.setRequestContentType(ContentType.valueOf(contentType));
+    }
+
+    @And("^request parameter (.*) is (.*)$")
+    public void requestParameterIs(String parameterName, String parameterValueKey) {
+        ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
+        String parameterValue = getTestData(parameterValueKey);
+        service.addRequestParameter(parameterName, parameterValue);
     }
 
     @When("^request is sent$")

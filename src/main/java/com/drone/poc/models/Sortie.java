@@ -13,7 +13,6 @@ import javax.persistence.*;
         }
 )
 @NoArgsConstructor
-@EqualsAndHashCode
 @ToString
 public class Sortie {
     @Id

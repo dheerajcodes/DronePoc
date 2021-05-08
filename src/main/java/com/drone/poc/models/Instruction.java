@@ -12,7 +12,6 @@ import java.util.Set;
 @Entity
 @Table(name = "instruction")
 @NoArgsConstructor
-@EqualsAndHashCode
 @ToString
 @JsonPropertyOrder({"id", "status"})
 public class Instruction {

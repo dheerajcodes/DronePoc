@@ -88,6 +88,10 @@ Feature: Send an instruction to a drone and retrieve instruction detail.
   @T_014 @T_015
   Scenario Outline: Verify that an instruction with unknown or empty type cannot be sent to a drone.
     Given endpoint is New Instruction Service
+    And request method is POST
+    And request accepts JSON
+    And request has JSON content
+    And request parameter drone-id is <Drone ID>
     And request parameter warehouse-location is <Warehouse Location>
     And request parameter instruction-type is <Type>
     And request parameter destination-location is <Destination Location>
@@ -95,14 +99,11 @@ Feature: Send an instruction to a drone and retrieve instruction detail.
     Then response is received with status <Status>
     And response has JSON content
     And instruction is failed with error <Error>
-    And request method is POST
-    And request accepts JSON
-    And request has JSON content
-    And request parameter drone-id is <Drone ID>
+
     Examples:
       | Drone ID       | Warehouse Location       | Type       | Destination Location       | Status               | Error                  |
       | T_014_DRONE_ID | T_014_WAREHOUSE_LOCATION | T_014_TYPE | T_014_DESTINATION_LOCATION | UNPROCESSABLE_ENTITY | UnknownInstructionType |
-      | T_015_DRONE_ID | T_015_WAREHOUSE_LOCATION | T_014_TYPE | T_015_DESTINATION_LOCATION | UNPROCESSABLE_ENTITY | EmptyInstructionType   |
+      | T_015_DRONE_ID | T_015_WAREHOUSE_LOCATION | T_015_TYPE | T_015_DESTINATION_LOCATION | UNPROCESSABLE_ENTITY | EmptyInstructionType   |
 
   @T_016
   Scenario Outline: Verify that sending pickup instruction to a busy drone results in error.

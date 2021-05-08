@@ -39,7 +39,7 @@ Feature: Webhook for the drone to update its sortie details.
     When request is sent
     Then response is received with status <Response Status>
     And response has JSON content
-    And sortie details fails to update with error <Error>
+    And sortie details failed to update with error <Error>
     Examples:
       | Drone ID       | Instruction ID       | Current Location       | Destination Location       | Warehouse Location       | Status       | Estimated Time       | Current Speed       | Response Status | Error           |
       | T_018_DRONE_ID | T_018_INSTRUCTION_ID | T_018_CURRENT_LOCATION | T_018_DESTINATION_LOCATION | T_018_WAREHOUSE_LOCATION | T_018_STATUS | T_018_ESTIMATED_TIME | T_018_CURRENT_SPEED | NOT_FOUND       | DroneIdNotFound |
@@ -61,7 +61,7 @@ Feature: Webhook for the drone to update its sortie details.
     When request is sent
     Then response is received with status <Response Status>
     And response has JSON content
-    And sortie details fails to update with error <Error>
+    And sortie details failed to update with error <Error>
     Examples:
       | Drone ID       | Instruction ID       | Current Location       | Destination Location       | Warehouse Location       | Status       | Estimated Time       | Current Speed       | Response Status | Error                 |
       | T_019_DRONE_ID | T_019_INSTRUCTION_ID | T_019_CURRENT_LOCATION | T_019_DESTINATION_LOCATION | T_019_WAREHOUSE_LOCATION | T_019_STATUS | T_019_ESTIMATED_TIME | T_019_CURRENT_SPEED | NOT_FOUND       | InstructionIdNotFound |

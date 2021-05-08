@@ -16,109 +16,202 @@ import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import io.restassured.response.Response;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
 
 public class Common extends CucumberStepDefinition {
 
     @Autowired
     private TestScenarioManager scenarioManager;
 
+    private static final Logger logger = Logger.getLogger(Common.class.getCanonicalName());
+
     @Before
     public void beforeScenario(Scenario scenario) {
-        scenarioManager.setupPreconditions(scenario);
+        try {
+            logger.debug("Before scenario: " + scenario.getName());
+            logger.debug("Setting up scenario preconditions ...");
+            scenarioManager.setupPreconditions(scenario);
+            logger.debug("Scenario preconditions setup completed");
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw exception;
+        }
     }
 
     @After
     public void afterScenario(Scenario scenario) {
-        scenarioManager.undoPreconditions(scenario);
+        try {
+            logger.debug("After scenario: " + scenario.getName());
+            logger.debug("Undoing scenario preconditions ...");
+            scenarioManager.undoPreconditions(scenario);
+            logger.debug("Scenario preconditions undo completed");
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw exception;
+        }
     }
 
     @Given("^endpoint is (.*)$")
     public void endPointIs(String serviceName) {
-        String baseUrl = getTestData("BASE_URL");
-        String basePath = getTestData("BASE_PATH");
-        if (baseUrl == null || baseUrl.trim().isEmpty())
-            throw new RuntimeException("BASE_URL is not set in test.data.properties file");
-        if (basePath == null || basePath.trim().isEmpty())
-            throw new RuntimeException("BASE_PATH is not set in test.data.properties file");
+        try {
+            logger.debug("Step Definition: endpoint is " + serviceName);
+            String baseUrl = getTestData("BASE_URL");
+            String basePath = getTestData("BASE_PATH");
+            if (baseUrl == null || baseUrl.trim().isEmpty())
+                throw new RuntimeException("BASE_URL is not set in test.data.properties file");
+            if (basePath == null || basePath.trim().isEmpty())
+                throw new RuntimeException("BASE_PATH is not set in test.data.properties file");
 
-        ServiceEndpoint service = null;
-        switch (serviceName) {
-            case "Drone List Service":
-                service = new DroneListService(baseUrl, basePath);
-                break;
-            case "Drone Detail Service":
-                service = new DroneDetailService(baseUrl, basePath);
-                break;
-            case "New Instruction Service":
-                service = new NewInstructionService(baseUrl, basePath);
-                break;
-            case "Instruction Detail Service":
-                service = new InstructionDetailService(baseUrl, basePath);
-                break;
-            case "Sortie Webhook Service":
-                service = new SortieWebhookService(baseUrl, basePath);
-                break;
-            default:
-                throw new UnknownServiceEndpoint(serviceName);
+            ServiceEndpoint service;
+            switch (serviceName) {
+                case "Drone List Service":
+                    service = new DroneListService(baseUrl, basePath);
+                    break;
+                case "Drone Detail Service":
+                    service = new DroneDetailService(baseUrl, basePath);
+                    break;
+                case "New Instruction Service":
+                    service = new NewInstructionService(baseUrl, basePath);
+                    break;
+                case "Instruction Detail Service":
+                    service = new InstructionDetailService(baseUrl, basePath);
+                    break;
+                case "Sortie Webhook Service":
+                    service = new SortieWebhookService(baseUrl, basePath);
+                    break;
+                default:
+                    throw new UnknownServiceEndpoint(serviceName);
+            }
+            logger.debug("Setting context item " + ContextItem.SERVICE);
+            getScenarioContext().setItem(ContextItem.SERVICE, service);
+            logger.debug("STEP OK");
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw exception;
         }
-        getScenarioContext().setItem(ContextItem.SERVICE, service);
     }
 
 
     @And("^endpoint url parameter (.*) is (.*)$")
     public void endpointUrlParameterIs(String parameterName, String parameterValueKey) {
-        ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
-        String parameterValue = getTestData(parameterValueKey);
-        service.addUrlParameter(parameterName, parameterValue);
+        try {
+            logger.debug("Step Definition: endpoint url parameter " + parameterName + " is " + parameterValueKey);
+            logger.debug("Getting context item " + ContextItem.SERVICE);
+            ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
+            String parameterValue = getTestData(parameterValueKey);
+            service.addUrlParameter(parameterName, parameterValue);
+            logger.debug("STEP OK");
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw exception;
+        }
     }
 
     @And("^request method is (.*)$")
     public void requestMethodIs(String requestMethod) {
-        ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
-        service.setRequestMethod(Method.valueOf(requestMethod));
+        try {
+            logger.debug("Step Definition: request method is " + requestMethod);
+            logger.debug("Getting context item " + ContextItem.SERVICE);
+            ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
+            service.setRequestMethod(Method.valueOf(requestMethod));
+            logger.debug("STEP OK");
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw exception;
+        }
     }
 
     @And("^request accepts (.*)$")
     public void requestAcceptsContentType(String contentType) {
-        ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
-        service.setRequestAccepts(ContentType.valueOf(contentType));
+        try {
+            logger.debug("Step Definition: request accepts " + contentType);
+            logger.debug("Getting context item " + ContextItem.SERVICE);
+            ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
+            service.setRequestAccepts(ContentType.valueOf(contentType));
+            logger.debug("STEP OK");
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw exception;
+        }
     }
 
     @And("^request has (.*) content$")
     public void requestHasContentType(String contentType) {
-        ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
-        service.setRequestContentType(ContentType.valueOf(contentType));
+        try {
+            logger.debug("Step Definition: request has " + contentType + " content");
+            logger.debug("Getting context item " + ContextItem.SERVICE);
+            ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
+            service.setRequestContentType(ContentType.valueOf(contentType));
+            logger.debug("STEP OK");
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw exception;
+        }
     }
 
     @And("^request parameter (.*) is (.*)$")
     public void requestParameterIs(String parameterName, String parameterValueKey) {
-        ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
-        String parameterValue = getTestData(parameterValueKey);
-        service.addRequestParameter(parameterName, parameterValue);
+        try {
+            logger.debug("Step Definition: request parameter " + parameterName + " is " + parameterValueKey);
+            logger.debug("Getting context item " + ContextItem.SERVICE);
+            ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
+            String parameterValue = getTestData(parameterValueKey);
+            service.addRequestParameter(parameterName, parameterValue);
+            logger.debug("STEP OK");
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw exception;
+        }
     }
 
     @When("^request is sent$")
     public void requestIsSent() {
-        ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
-        Response response = service.sendRequest();
-        getScenarioContext().setItem(ContextItem.RESPONSE, response);
+        try {
+            logger.debug("Step Definition: request is sent");
+            logger.debug("Getting context item " + ContextItem.SERVICE);
+            ServiceEndpoint service = (ServiceEndpoint) getScenarioContext().getItem(ContextItem.SERVICE);
+            Response response = service.sendRequest();
+            logger.debug("Setting context item " + ContextItem.RESPONSE);
+            getScenarioContext().setItem(ContextItem.RESPONSE, response);
+            logger.debug("STEP OK");
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw exception;
+        }
     }
 
     @Then("^response is received with status (.*)$")
     public void responseReceivedWithStatus(String responseStatus) {
-        Response response = (Response) getScenarioContext().getItem(ContextItem.RESPONSE);
-        response.then()
-                .assertThat()
-                .statusCode(HttpStatus.valueOf(responseStatus).value());
+        try {
+            logger.debug("Step Definition: response is received with status " + responseStatus);
+            logger.debug("Getting context item " + ContextItem.RESPONSE);
+            Response response = (Response) getScenarioContext().getItem(ContextItem.RESPONSE);
+            response.then()
+                    .assertThat()
+                    .statusCode(HttpStatus.valueOf(responseStatus).value());
+            logger.debug("STEP OK");
+        } catch (AssertionError | Exception errorException) {
+            logger.error(errorException.getMessage());
+            throw errorException;
+        }
     }
 
     @And("^response has (.*) content$")
     public void responseHasContentType(String contentType) {
-        Response response = (Response) getScenarioContext().getItem(ContextItem.RESPONSE);
-        response.then()
-                .assertThat()
-                .contentType(ContentType.valueOf(contentType));
+        try {
+            logger.debug("response has " + contentType + " content");
+            logger.debug("Getting context item " + ContextItem.RESPONSE);
+            Response response = (Response) getScenarioContext().getItem(ContextItem.RESPONSE);
+            response.then()
+                    .assertThat()
+                    .contentType(ContentType.valueOf(contentType));
+            logger.debug("STEP OK");
+        } catch (AssertionError | Exception errorException) {
+            logger.error(errorException.getMessage());
+            throw errorException;
+        }
     }
 }

@@ -54,6 +54,11 @@ public class Common extends CucumberStepDefinition {
         }
     }
 
+    /**
+     * Create service object corresponds to given service name and save it in the scenario context.
+     *
+     * @param serviceName Service Name
+     */
     @Given("^endpoint is (.*)$")
     public void endPointIs(String serviceName) {
         try {
@@ -95,6 +100,12 @@ public class Common extends CucumberStepDefinition {
     }
 
 
+    /**
+     * Add the endpoint url parameter in the service object.
+     *
+     * @param parameterName     url parameter name
+     * @param parameterValueKey key to obtain url parameter value from test data
+     */
     @And("^endpoint url parameter (.*) is (.*)$")
     public void endpointUrlParameterIs(String parameterName, String parameterValueKey) {
         try {
@@ -110,6 +121,11 @@ public class Common extends CucumberStepDefinition {
         }
     }
 
+    /**
+     * Set the http request method in the service object.
+     *
+     * @param requestMethod Http request method (GET,POST,PUT,DELETE,etc.)
+     */
     @And("^request method is (.*)$")
     public void requestMethodIs(String requestMethod) {
         try {
@@ -124,6 +140,11 @@ public class Common extends CucumberStepDefinition {
         }
     }
 
+    /**
+     * Set the content type for the accepts request header in the service object.
+     *
+     * @param contentType Content Type Value
+     */
     @And("^request accepts (.*)$")
     public void requestAcceptsContentType(String contentType) {
         try {
@@ -138,6 +159,11 @@ public class Common extends CucumberStepDefinition {
         }
     }
 
+    /**
+     * Set the content type of the request body in the service object.
+     *
+     * @param contentType Content Type Value
+     */
     @And("^request has (.*) content$")
     public void requestHasContentType(String contentType) {
         try {
@@ -152,6 +178,12 @@ public class Common extends CucumberStepDefinition {
         }
     }
 
+    /**
+     * Set the request body parameter in the service object.
+     *
+     * @param parameterName     request parameter name
+     * @param parameterValueKey key to obtain request parameter value from test data
+     */
     @And("^request parameter (.*) is (.*)$")
     public void requestParameterIs(String parameterName, String parameterValueKey) {
         try {
@@ -167,6 +199,9 @@ public class Common extends CucumberStepDefinition {
         }
     }
 
+    /**
+     * Send the request using service object and save the response in scenario context.
+     */
     @When("^request is sent$")
     public void requestIsSent() {
         try {
@@ -183,6 +218,11 @@ public class Common extends CucumberStepDefinition {
         }
     }
 
+    /**
+     * Asserts that http status of service response matches the given http status.
+     *
+     * @param responseStatus Http Status Value
+     */
     @Then("^response is received with status (.*)$")
     public void responseReceivedWithStatus(String responseStatus) {
         try {
@@ -199,6 +239,11 @@ public class Common extends CucumberStepDefinition {
         }
     }
 
+    /**
+     * Asserts that content type of service request body matches the given content type.
+     *
+     * @param contentType Content Type Value
+     */
     @And("^response has (.*) content$")
     public void responseHasContentType(String contentType) {
         try {

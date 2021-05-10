@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This class set up and undo scenario preconditions.
+ */
 @Component
 public class TestScenarioManager {
     private static final String PATTERN_TEST_TAG = "^@T_\\d{3}$";

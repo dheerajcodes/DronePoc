@@ -6,16 +6,20 @@ import com.drone.poc.exceptions.UnknownRequestParameterException;
 
 public class NewInstructionService extends ServiceEndpoint {
 
+    // Request parameters
     public static final String REQUEST_PARAMETER_DRONE_ID = "drone-id";
     public static final String REQUEST_PARAMETER_WAREHOUSE_LOCATION = "warehouse-location";
     public static final String REQUEST_PARAMETER_INSTRUCTION_TYPE = "instruction-type";
     public static final String REQUEST_PARAMETER_DESTINATION_LOCATION = "destination-location";
 
+    // Service Endpoint Path
     private static final String END_POINT_PATH = "/drones/instructions";
     private static final String SIMPLE_CLASS_NAME = NewInstructionService.class.getSimpleName();
 
+    // Default Instruction Type
     private static final String DEFAULT_INSTRUCTION_TYPE = "pickup";
 
+    // Request Body Template (with request parameters as placeholders)
     private static final String TEMPLATE_REQUEST_BODY = "{\n" +
             "    \"data\":{\n" +
             "        \"payload\":[\n" +
@@ -35,6 +39,7 @@ public class NewInstructionService extends ServiceEndpoint {
 
     @Override
     public void addUrlParameter(String key, String value) {
+        // Since service endpoint path does not support parameters, hence exception is thrown.
         throw new NonParameterizedPathException(SIMPLE_CLASS_NAME);
     }
 
@@ -48,6 +53,7 @@ public class NewInstructionService extends ServiceEndpoint {
                 super.addRequestParameter(key, value);
                 break;
             default:
+                // Unknown request parameter
                 throw new UnknownRequestParameterException(SIMPLE_CLASS_NAME, key);
         }
     }

@@ -4,9 +4,14 @@ import com.drone.poc.exceptions.RequestBodyException;
 import com.drone.poc.exceptions.UnknownRequestParameterException;
 import com.drone.poc.exceptions.UnknownUrlParameterException;
 
+/**
+ * This class represents SortieWebhookService endpoint.
+ */
 public class SortieWebhookService extends ServiceEndpoint {
+    // URL parameter
     public static final String URL_PARAMETER_DRONE_ID = "drone-id";
 
+    // Request parameters
     public static final String REQUEST_PARAMETER_INSTRUCTION_ID = "instruction-id";
     public static final String REQUEST_PARAMETER_CURRENT_LOCATION = "current-location";
     public static final String REQUEST_PARAMETER_DESTINATION_LOCATION = "destination-location";
@@ -15,9 +20,11 @@ public class SortieWebhookService extends ServiceEndpoint {
     public static final String REQUEST_PARAMETER_ETA = "estimated-time";
     public static final String REQUEST_PARAMETER_CURRENT_SPEED = "current-speed";
 
+    // Service Endpoint Path
     private static final String END_POINT_PATH = "/drones/{" + URL_PARAMETER_DRONE_ID + "}/sorties";
     private static final String SIMPLE_CLASS_NAME = SortieWebhookService.class.getSimpleName();
 
+    // Request Body Template (with request parameters as placeholders)
     private static final String TEMPLATE_REQUEST_BODY = "{\n" +
             "    \"data\":{\n" +
             "        \"payload\": [\n" +
@@ -45,6 +52,7 @@ public class SortieWebhookService extends ServiceEndpoint {
                 super.addUrlParameter(key, value);
                 break;
             default:
+                // Unknown url parameter
                 throw new UnknownUrlParameterException(SIMPLE_CLASS_NAME, key);
         }
     }
@@ -62,6 +70,7 @@ public class SortieWebhookService extends ServiceEndpoint {
                 super.addRequestParameter(key, value);
                 break;
             default:
+                // Unknown request parameter
                 throw new UnknownRequestParameterException(SIMPLE_CLASS_NAME, key);
         }
     }
